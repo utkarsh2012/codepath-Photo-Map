@@ -59,7 +59,7 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
                                didFinishPickingMediaWithInfo info: [String : Any]) {
         // Get the image captured by the UIImagePickerController
         //originalImage = info[UIImagePickerControllerOriginalImage] as! UIImage
-        originalImage = info[UIImagePickerControllerEditedImage] as! UIImage
+        originalImage = info[UIImagePickerControllerEditedImage] as? UIImage
         
         // Do something with the images (based on your use case)
         
@@ -71,7 +71,7 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
         self.performSegue(withIdentifier: "tagSegue", sender: self)
     }
     
-    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let reuseID = "myAnnotationView"
         
         var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseID)
@@ -81,8 +81,9 @@ class PhotoMapViewController: UIViewController, UIImagePickerControllerDelegate,
             annotationView!.leftCalloutAccessoryView = UIImageView(frame: CGRect(x:0, y:0, width: 50, height:50))
         }
         
+        let photoAnno = annotationView?.annotation as? PhotoAnnotation
         let imageView = annotationView?.leftCalloutAccessoryView as! UIImageView
-        imageView.image = UIImage(named: "camera")
+        imageView.image = photoAnno?.photo
         
         return annotationView
     }
@@ -93,9 +94,9 @@ extension PhotoMapViewController : LocationsViewControllerDelegate {
         self.navigationController?.popViewController(animated: true)
         let coordinate = CLLocationCoordinate2D(latitude: Double(latitude), longitude: Double(longitude))
         
-        let annotation = MKPointAnnotation()
+        let annotation = PhotoAnnotation()
         annotation.coordinate = coordinate
-        annotation.title = "Picture!"
+        annotation.photo = originalImage
         mapView.addAnnotation(annotation)
     }
 }
